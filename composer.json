@@ -1,0 +1,12 @@
+{
+    "name": "jewel/rescue",
+    "require": {
+        "borivojevic/rescuetime": "^2.2"
+    },
+    "authors": [
+        {
+            "name": "Shahjahan Jewel",
+            "email": "cep.jewel@gmail.com"
+        }
+    ]
+}
