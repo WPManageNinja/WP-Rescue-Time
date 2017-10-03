@@ -58,8 +58,7 @@ class Wp_Rescue_Time_Admin {
 	public function add_menu() {
 		add_menu_page(__('Rescue Time', 'wp-rescue-time'),
 			__('Rescue Time', 'wp-rescue-time'), 'manage_options', 'wp-rescue-time',
-			array($this, 'main_page'), 'data:image/svg+xml;base64,' . base64_encode( '
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 66.06 66.41"><defs><style>.cls-1{fill:#fff;}</style></defs><title>Asset 1</title><g id="Layer_2" data-name="Layer 2"><g id="Layer_1-2" data-name="Layer 1"><path class="cls-1" d="M44.82,2.16A21.27,21.27,0,0,1,63.89,21.23H44.82V2.16M42.76,0V23.3h23.3A23.3,23.3,0,0,0,42.76,0Z"/><path class="cls-1" d="M23.53,2.06H42.7V21.23H23.53V2.06M21.47,0V23.3h23.3V0Z"/><path class="cls-1" d="M44.82,23.71H64V42.87H44.82V23.71m-2.06-2.06v23.3h23.3V21.64Z"/><path class="cls-1" d="M23.53,23.71H42.7V42.87H23.53V23.71m-2.06-2.06v23.3h23.3V21.64Z"/><path class="cls-1" d="M21.23,2.16V21.23H2.16A21.27,21.27,0,0,1,21.23,2.16M23.3,0A23.3,23.3,0,0,0,0,23.3H23.3V0Z"/><path class="cls-1" d="M2.06,23.71H21.23V42.87H2.06V23.71M0,21.64v23.3H23.3V21.64Z"/><path class="cls-1" d="M44.82,45.18H64V64.34H44.82V45.18m-2.06-2.06v23.3h23.3V43.11Z"/><path class="cls-1" d="M23.53,45.18H42.7V64.34H23.53V45.18m-2.06-2.06v23.3h23.3V43.11Z"/><path class="cls-1" d="M2.16,45.18H21.23V64.24A21.27,21.27,0,0,1,2.16,45.18M0,43.11H0a23.3,23.3,0,0,0,23.3,23.3h0V43.11Z"/></g></g></svg>' ), 25);
+			array($this, 'main_page'), 'data:image/svg+xml;base64,' . base64_encode( '<svg enable-background="new 0 0 100 100" height="100px" id="Layer_1" version="1.1" viewBox="0 0 100 100" width="100px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g><g><g><g/></g><g/></g></g><g><path d="M52,51.055V35.5c0-1.104-0.896-2-2-2s-2,0.896-2,2v15.555c-1,0.693-2,1.969-2,3.445c0,2.209,1.791,4,4,4   s4-1.791,4-4C54,53.023,53,51.748,52,51.055z" fill="#231F20"/><path d="M50,24.5c-16.542,0-30,13.458-30,30s13.458,30,30,30s30-13.458,30-30S66.542,24.5,50,24.5z M50,82.5   c-15.439,0-28-12.561-28-28s12.561-28,28-28s28,12.561,28,28S65.439,82.5,50,82.5z" fill="#231F20"/><path d="M82.795,37.4l1.465-0.845c0.407-0.235,0.547-0.76,0.312-1.167l-3.646-6.315   c-0.235-0.407-0.76-0.547-1.167-0.312l-1.949,1.125c-0.049,0.029-0.082,0.073-0.124,0.109C71.95,23.519,64,19.072,55,17.851V15h-3   v-2h2V9h-8v4h2v2h-3v2.851c-9,1.238-17.161,5.789-22.915,12.405c-0.072-0.148-0.172-0.283-0.325-0.371l-1.949-1.125   c-0.406-0.235-0.932-0.094-1.167,0.312l-3.646,6.315c-0.235,0.407-0.094,0.932,0.312,1.167l1.795,1.036   C14.489,42.663,13,48.409,13,54.5c0,20.402,16.598,37,37,37s37-16.598,37-37C87,48.333,85.475,42.519,82.795,37.4z M50,87.5   c-18.196,0-33-14.804-33-33s14.804-33,33-33s33,14.804,33,33S68.196,87.5,50,87.5z" fill="#231F20"/></g></svg>' ), 25);
 	}
 	
 	public function main_page() {
@@ -93,8 +92,24 @@ class Wp_Rescue_Time_Admin {
 		if ( !current_user_can( 'edit_user', $user_id ) )
 			return false;
 
-		update_user_meta( $user_id, '_rescue_time_api_key', sanitize_text_field($_POST['_rescue_time_api_key']) );
-		
+		$metaValue = false;
+		if($_POST['_rescue_time_api_key']) {
+			$metaValue = sanitize_text_field($_POST['_rescue_time_api_key']);
+			try {
+				$client = new RescueTime\Client($metaValue);
+				$activities = $client->getActivities(new RescueTime\RequestQueryParameters(['perspective' => 'rank']));
+				if($activities) {
+					update_user_meta( $user_id, '_rescue_time_api_key',  $metaValue);
+                }
+            } catch ( Exception $e ) {
+				add_action( 'user_profile_update_errors', function(&$errors, $update = null, &$user  = null) {
+					$errors->add('_rescue_time_api_key', "<strong>ERROR</strong>: Rescue Time API key is not correct");
+                } );
+            }
+		} else {
+			update_user_meta( $user_id, '_rescue_time_api_key',  $metaValue);
+        }
+        
 	}
 	
 

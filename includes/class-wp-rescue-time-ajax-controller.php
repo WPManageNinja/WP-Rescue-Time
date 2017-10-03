@@ -26,7 +26,10 @@ class WPRescueTimeAjaxController
 				'ID',
 				'display_name',
 				'user_email'
-			)
+			),
+			'meta_key' => '_rescue_time_api_key', 
+			'meta_value' => false, 
+			'meta_compare' => '!='
 		));
 		
 		$users = $user_query->get_results();
