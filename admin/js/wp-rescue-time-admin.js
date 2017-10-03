@@ -53327,10 +53327,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
-//
-//
-//
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     name: 'UserHome',
@@ -53343,6 +53339,18 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         };
     },
 
+    computed: {
+        total_logged: function total_logged() {
+            if (this.stat) {
+                var total = 0;
+                this.stat.forEach(function (val) {
+                    total += val.value;
+                });
+                return total.toFixed(2);
+            }
+            return null;
+        }
+    },
     methods: {
         getUser: function getUser() {
             var _this = this;
@@ -53438,6 +53446,21 @@ var render = function() {
             })
           ],
           1
+        ),
+        _vm._v(" "),
+        _c(
+          "h3",
+          {
+            directives: [
+              {
+                name: "show",
+                rawName: "v-show",
+                value: _vm.total_logged,
+                expression: "total_logged"
+              }
+            ]
+          },
+          [_vm._v("Total Logged: " + _vm._s(_vm.total_logged) + " hours")]
         )
       ],
       1

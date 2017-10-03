@@ -9,15 +9,11 @@
         </div>
         <div  v-loading.body="loading" class="row">
             <h3>Top Working Categories</h3>
-            <el-table
-
-                    :data="stat"
-                    border
-                    :style="'width: 100%'"
-            >
+            <el-table :data="stat" border :style="'width: 100%'">
                 <el-table-column label="Category" prop="title"></el-table-column>
                 <el-table-column label="Time ( Hours )" prop="value"></el-table-column>
             </el-table>
+            <h3 v-show="total_logged">Total Logged: {{ total_logged }} hours</h3>
         </div>
             
 
@@ -34,6 +30,18 @@
                 user: null,
                 stat: null
             }
+        },
+        computed: {
+            total_logged() {
+                if(this.stat) {
+                    let total = 0;
+                    this.stat.forEach((val) => {
+                        total += val.value;
+                    });
+                    return total.toFixed(2);
+                }
+                return null;
+            }  
         },
         methods: {
             getUser() {
